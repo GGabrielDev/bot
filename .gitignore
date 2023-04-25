@@ -2,10 +2,6 @@
 node_modules/
 npm-debug.log*
 
-# Ignore TypeScript files
-*.ts
-*.js.map
-
 # Ignore build output
 dist/
 
