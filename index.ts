@@ -1,10 +1,13 @@
 import express from 'express';
 import dotenv from "dotenv";
 import { formatTimestamp } from './src/services/timestamp';
-import { checkConnectivity } from './src/services/network';
+import { checkBandwidth, checkConnectivity } from './src/services/network';
 
 dotenv.config()
-const { PORT } = process.env
+const { BANDWIDTH_INTERVAL, CONNECTIVITY_INTERVAL, PORT } = process.env
+
+let bandwidthInt = BANDWIDTH_INTERVAL ? parseInt(BANDWIDTH_INTERVAL) : 1.5 * 60 * 60 * 1000
+let connectivityInt = CONNECTIVITY_INTERVAL ? parseInt(CONNECTIVITY_INTERVAL) : 60 * 1000
 
 const app = express();
 
@@ -12,10 +15,12 @@ app.get('/', (req, res) => {
   res.send('Hello, world!');
 });
 
-app.listen(PORT ?? 3000, () => {
+app.listen(PORT ?? 3000, async () => {
   console.log(`[${formatTimestamp(new Date)}] Server listening on port ${PORT ?? 3000}.`);
 
-  const intervalMs = 60 * 1000; // 1 minute
-  setInterval(checkConnectivity, intervalMs);
+  await checkBandwidth()
+
+  setInterval(checkBandwidth, bandwidthInt)
+  setInterval(checkConnectivity, connectivityInt);
 });
 
